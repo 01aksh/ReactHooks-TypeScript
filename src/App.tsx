@@ -1,6 +1,7 @@
 import ContextComponent from "@components/ContextComponent/ContextComponent";
 import { ThemeButton } from "@components/ThemeButton";
 import UseEffectHook from "@components/useEffectComponent/UseEffectHook";
+import UseRefHook from "@components/useRefComponent/useRefComponent";
 import UseReducerHook from "@components/useReducerComponent/UseReducerHook";
 import UseStateHook from "@components/useStateComponent/UseStateHook";
 import { useState } from "react";
@@ -15,14 +16,18 @@ function App() {
     { label: "useState", component: <UseStateHook /> },
     { label: "useEffect", component: <UseEffectHook /> },
     { label: "useReducer", component: <UseReducerHook /> },
-    { label: "useRef", component: <UseReducerHook /> },
+    { label: "useRef", component: <UseRefHook /> },
     { label: "useCallBack", component: <UseReducerHook /> },
     { label: "useMemo", component: <UseReducerHook /> },
     { label: "useContext", component: <ContextComponent /> },
   ];
 
   return (
-    <div className={`${theme === "light" ? "bg-white text-black" : "bg-black text-white"} min-h-screen`}>
+    <div
+      className={`${
+        theme === "light" ? "bg-white text-black" : "bg-black text-white"
+      } min-h-screen`}
+    >
       <p className="bg-red-400 text-center py-4 text-2xl font-semibold font-mono text-amber-200">
         React <ThemeButton />
       </p>
