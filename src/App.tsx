@@ -1,56 +1,149 @@
-import ContextComponent from "@components/ContextComponent/ContextComponent";
-import { ThemeButton } from "@components/ThemeButton";
-import UseEffectHook from "@components/useEffectComponent/UseEffectHook";
-import UseRefHook from "@components/useRefComponent/useRefComponent";
-import UseReducerHook from "@components/useReducerComponent/UseReducerHook";
-import UseStateHook from "@components/useStateComponent/UseStateHook";
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
-import "./App.css";
-import { useTheme } from "./contexts/ThemeContext";
 
-function App() {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const { theme } = useTheme();
+interface Item {
+  id: number | string;
+  name: string;
+  age: number | string;
+}
 
-  const menuItems = [
-    { label: "useState", component: <UseStateHook /> },
-    { label: "useEffect", component: <UseEffectHook /> },
-    { label: "useReducer", component: <UseReducerHook /> },
-    { label: "useRef", component: <UseRefHook /> },
-    { label: "useCallBack", component: <UseReducerHook /> },
-    { label: "useMemo", component: <UseReducerHook /> },
-    { label: "useContext", component: <ContextComponent /> },
-  ];
+const App = () => {
+  const tableHeadStyles = `border-r-amber-500 border-r`;
+  const [items, setItems] = useState<Item[]>([]);
+  const [isEditing, setIsEditing] = useState(false);
+  const [user, setUser] = useState<Item>({
+    id: "",
+    name: "",
+    age: "",
+  });
+
+  const [itemToEdit, setItemToEdit] = useState<Item | null>(null);
+
+  const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
+    const { name, value } = e.currentTarget;
+    setUser({ ...user, [name]: value } as Item);
+  };
+
+  const handleAddEdit = () => {
+    if (isEditing) {
+      const updateItems = items.map((item) =>
+        item?.id == itemToEdit?.id
+          ? {
+              ...item,
+              name: user?.name,
+              age: user?.age,
+            }
+          : item
+      );
+      setItems(updateItems);
+      setIsEditing(false);
+      setUser({
+        id: "",
+        name: "",
+        age: "",
+      });
+      setItemToEdit(null);
+    } else {
+      setItems([
+        ...items,
+        {
+          id: crypto.randomUUID() as any,
+          name: user.name,
+          age: user.age,
+        },
+      ]);
+      setUser({
+        id: "",
+        name: "",
+        age: "",
+      });
+    }
+  };
+
+  const handleDelete = (id: number | string) => {
+    const updatedItems = items.filter((item) => item?.id != id);
+    setItems(updatedItems);
+  };
+
+  const handleEdit = (id: number | string) => {
+    setIsEditing(true);
+    const foundItem = items.find((item) => item?.id == id);
+
+    if (foundItem) {
+      setItemToEdit(foundItem);
+      setUser({
+        id: foundItem?.id,
+        name: foundItem?.name,
+        age: foundItem?.age,
+      });
+    }
+  };
+
+  // console.log(user);
 
   return (
-    <div
-      className={`${
-        theme === "light" ? "bg-white text-black" : "bg-black text-white"
-      } min-h-screen`}
-    >
-      <p className="bg-red-400 text-center py-4 text-2xl font-semibold font-mono text-amber-200">
-        React <ThemeButton />
-      </p>
-
-      <nav className="bg-gray-100 py-2 rounded-b-lg font-mono">
-        <ul className="flex justify-around">
-          {menuItems.map((item, index) => (
-            <li
-              key={index}
-              onClick={() => setCurrentIndex(index)}
-              className={`px-2 cursor-pointer hover:text-amber-500 hover:underline text-black ${
-                currentIndex === index ? "text-amber-500" : ""
-              }`}
-            >
-              {item.label}
-            </li>
-          ))}
-        </ul>
-      </nav>
-
-      <div>{menuItems[currentIndex].component}</div>
+    <div className="bg-red-50 w-full h-screen">
+      <h1 className="text-3xl font-bold text-center">PODS</h1>
+      <input
+        type="text"
+        placeholder="Enter Name"
+        name="name"
+        value={user.name}
+        onChange={handleOnChange}
+      />
+      <input
+        type="number"
+        placeholder="Enter Age"
+        name="age"
+        value={user.age}
+        onChange={handleOnChange}
+      />
+      <button onClick={handleAddEdit}>{isEditing ? "Edit" : "Add"}</button>
+      <table className="w-full bg-blue-50">
+        <thead>
+          <tr className="bg-gray-300">
+            {/* <th className={tableHeadStyles}>ID</th> */}
+            <th className={tableHeadStyles}>Tri</th>
+            <th className={tableHeadStyles}>POD</th>
+            <th className={tableHeadStyles}>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {items?.length > 0 ? (
+            items?.map((item: Item) => (
+              <tr key={item.id}>
+                {/* <td >{item.id}</td> */}
+                <td className="text-center">{item.name}</td>
+                <td className="text-center">{item.age}</td>
+                <td className="text-center">
+                  <div className="gap-2">
+                    <button
+                      className="bg-green-300 px-2 py-2 rounded"
+                      onClick={() => handleEdit(item?.id)}
+                    >
+                      Edit
+                    </button>
+                    <button
+                      className="bg-red-300 px-2 py-2 rounded"
+                      onClick={() => handleDelete(item.id)}
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td colSpan={4} className="text-center py-6">
+                No Items
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </table>
     </div>
   );
-}
+};
 
 export default App;
